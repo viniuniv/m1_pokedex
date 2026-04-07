@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,7 +51,10 @@ fun PokemonDetailScreen(
         }
 
         Card(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = corTipoPokemon(pokemon.types[0])
+            ),
         ) {
             Column(
                 modifier = Modifier.padding(20.dp),
@@ -67,12 +73,16 @@ fun PokemonDetailScreen(
 
                 AsyncImage(
                     model = pokemon.imageUrl,
-                    contentDescription = pokemon.name
+                    contentDescription = pokemon.name,
+                    modifier = Modifier.size(150.dp)
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pokemon.types.forEach { type ->
                         AssistChip(
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = Color.White
+                            ),
                             onClick = {},
                             label = { Text(type.capitalizePokemonName()) }
                         )

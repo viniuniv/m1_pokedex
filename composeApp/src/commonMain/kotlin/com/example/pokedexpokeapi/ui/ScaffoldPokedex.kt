@@ -30,61 +30,60 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScaffoldPokedex (
+fun ScaffoldPokedex(
     onHomeClick: () -> Unit,
     onSeePokedexClick: () -> Unit,
     onSeeTeamClick: () -> Unit,
-    viewName:String,
-    content: @Composable () -> Unit
+    viewName: String,
+    content: @Composable (PaddingValues) -> Unit
 
 ) {
     Scaffold(
-    topBar = {
-        TopAppBar(
-            title = {Text(viewName, fontSize = 32.sp)}
-        )
-    },
 
-    bottomBar = {
-        BottomAppBar(){
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ){
-                Row(){
-                    FloatingActionButton(onClick = onHomeClick){
-                        Icon(
-                            imageVector = Icons.Filled.Home,
-                            contentDescription = "er"
-                        )
+        topBar = {
+            TopAppBar(
+                title = { Text(viewName, fontSize = 32.sp) }
+            )
+        },
+
+        bottomBar = {
+            BottomAppBar() {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row() {
+                        FloatingActionButton(onClick = onHomeClick) {
+                            Icon(
+                                imageVector = Icons.Filled.Home,
+                                contentDescription = "er"
+                            )
+                        }
+
+                        FloatingActionButton(onClick = onSeePokedexClick) {
+                            Icon(
+                                imageVector = Icons.Filled.GridView,
+                                contentDescription = "er"
+                            )
+                        }
+                        FloatingActionButton(onClick = onSeeTeamClick) {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = "er"
+
+                            )
+                        }
                     }
 
-                    FloatingActionButton(onClick = onSeePokedexClick){
-                        Icon(
-                            imageVector = Icons.Filled.GridView,
-                            contentDescription = "er"
-                        )
-                    }
-                    FloatingActionButton(onClick = onSeeTeamClick){
-                        Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = "er"
-
-                        )
-                    }
                 }
 
-            }
 
-
-        };
+            };
+        }
+    ) { innerPadding ->
+        content(innerPadding)
     }
-    ) {
-        padding->
-        content()
-    }
-
 
 
 }

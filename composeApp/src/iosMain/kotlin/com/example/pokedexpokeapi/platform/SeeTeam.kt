@@ -1,4 +1,4 @@
-package com.example.pokedexpokeapi.ui
+package com.example.pokedexpokeapi.platform
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,10 +10,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.pokedexpokeapi.data.Pokemon
-import androidx.compose.foundation.lazy.items
+import com.example.pokedexpokeapi.ui.PokemonGridItem
+import com.example.pokedexpokeapi.ui.ScaffoldPokedex
 
 @Composable
-fun PokemonTeam(
+actual fun PokemonTeam(
     onHomeClick: ()->Unit,
     onSeePokedexClick: () -> Unit,
     onSeeTeamClick: ()-> Unit,
@@ -22,22 +23,22 @@ fun PokemonTeam(
 
 ){
     ScaffoldPokedex(
-        onHomeClick=onHomeClick,
+        onHomeClick = onHomeClick,
         onSeePokedexClick = onSeePokedexClick,
         onSeeTeamClick = onSeeTeamClick,
         viewName = "Meu Time"
-    ){
+    ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
 
-            contentPadding = PaddingValues(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 90.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
-        ){
-            items(TimePokemon.size){i->
+        ) {
+            items(TimePokemon.size) { i ->
                 val p = TimePokemon[i]
-                PokemonGridItem(pokemon=p, onClick = {onPokemonClick(p.id)})
+                PokemonGridItem(pokemon = p, onClick = { onPokemonClick(p.id) })
             }
 
         }
@@ -45,4 +46,3 @@ fun PokemonTeam(
     }
 }
 
-val TimePokemon = mutableStateListOf<Pokemon>()

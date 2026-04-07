@@ -17,10 +17,11 @@ import com.example.pokedexpokeapi.navigation.HomeRoute
 import com.example.pokedexpokeapi.navigation.PokedexRoute
 import com.example.pokedexpokeapi.navigation.PokemonDetailRoute
 import com.example.pokedexpokeapi.navigation.TeamRoute
+import com.example.pokedexpokeapi.platform.PokemonTeam
 import com.example.pokedexpokeapi.ui.HomeScreen
 import com.example.pokedexpokeapi.ui.PokedexGridScreen
 import com.example.pokedexpokeapi.ui.PokemonDetailScreen
-import com.example.pokedexpokeapi.ui.PokemonTeam
+
 import org.jetbrains.compose.resources.painterResource
 
 import pokedexpokeapi.composeapp.generated.resources.Res
