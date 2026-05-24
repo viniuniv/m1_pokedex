@@ -6,12 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.pokedexpokeapi.data.Pokemon
-import com.example.pokedexpokeapi.ui.PokemonGridItem
-import com.example.pokedexpokeapi.ui.ScaffoldPokedex
+import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokemonGridItem
+import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
 
 @Composable
 actual fun PokemonTeam(

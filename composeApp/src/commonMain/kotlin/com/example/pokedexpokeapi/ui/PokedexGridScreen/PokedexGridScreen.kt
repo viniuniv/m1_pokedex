@@ -1,4 +1,4 @@
-package com.example.pokedexpokeapi.ui
+package com.example.pokedexpokeapi.ui.PokedexGridScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,10 +31,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.pokedexpokeapi.data.Pokemon
-import kotlin.collections.contains
+import com.example.pokedexpokeapi.ui.capitalizePokemonName
+import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
+import com.example.pokedexpokeapi.ui.formatPokemonNumber
 
 @Composable
 fun PokedexGridScreen(
+    viewModel: PokedexGridScreenViewModel,
+
     onHomeClick: () -> Unit,
     onSeePokedexClick: () -> Unit,
     onSeeTeamClick: () -> Unit,

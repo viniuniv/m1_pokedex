@@ -30,7 +30,10 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
+
             implementation("io.ktor:ktor-client-okhttp:3.0.0")
+
+            implementation("androidx.activity:activity-compose:1.10.1")
         }
         iosMain.dependencies {
             implementation("io.ktor:ktor-client-darwin:3.0.0")
@@ -44,12 +47,16 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
             implementation("io.coil-kt.coil3:coil-compose:3.0.4")
             implementation("io.coil-kt.coil3:coil-network-ktor3:3.0.4")
 
             implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
 
         }
         commonTest.dependencies {

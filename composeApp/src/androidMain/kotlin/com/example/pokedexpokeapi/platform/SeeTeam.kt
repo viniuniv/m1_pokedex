@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.pokedexpokeapi.data.Pokemon
-import com.example.pokedexpokeapi.ui.TimePokemon
+import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokemonGridItem
+import com.example.pokedexpokeapi.ui.PokedexGridScreen.TimePokemon
+import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
 
 @Composable
 actual fun PokemonTeam(
@@ -21,7 +21,7 @@ actual fun PokemonTeam(
     onPokemonClick:(Int)->Unit
 
 ){
-    _root_ide_package_.com.example.pokedexpokeapi.ui.ScaffoldPokedex(
+    ScaffoldPokedex(
         onHomeClick = onHomeClick,
         onSeePokedexClick = onSeePokedexClick,
         onSeeTeamClick = onSeeTeamClick,
@@ -37,7 +37,7 @@ actual fun PokemonTeam(
         ) {
             items(TimePokemon.size) { i ->
                 val p = TimePokemon[i]
-                _root_ide_package_.com.example.pokedexpokeapi.ui.PokemonGridItem(
+                PokemonGridItem(
                     pokemon = p,
                     onClick = { onPokemonClick(p.id) })
             }

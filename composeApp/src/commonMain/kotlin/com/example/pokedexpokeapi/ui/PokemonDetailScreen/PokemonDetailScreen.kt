@@ -1,4 +1,4 @@
-package com.example.pokedexpokeapi.ui
+package com.example.pokedexpokeapi.ui.PokemonDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,14 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,9 +21,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.pokedexpokeapi.data.Pokemon
+import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokedexGridScreenViewModel
+import com.example.pokedexpokeapi.ui.PokedexGridScreen.TimePokemon
+import com.example.pokedexpokeapi.ui.PokedexGridScreen.corTipoPokemon
+import com.example.pokedexpokeapi.ui.capitalizePokemonName
+import com.example.pokedexpokeapi.ui.formatPokemonNumber
 
 @Composable
 fun PokemonDetailScreen(
+    viewModel: PokemonDetailScreenViewModel,
     pokemon: Pokemon?,
     onBackClick: () -> Unit,
 ) {
@@ -53,7 +56,9 @@ fun PokemonDetailScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = corTipoPokemon(pokemon.types[0])
+                containerColor = corTipoPokemon(
+                    pokemon.types[0]
+                )
             ),
         ) {
             Column(
@@ -138,10 +143,10 @@ fun Icon() {
 }
 
 fun togglePokemon(p:Pokemon){
-    if (TimePokemon.contains(p)){
-        TimePokemon.remove(p)
+    if (_root_ide_package_.com.example.pokedexpokeapi.ui.PokedexGridScreen.TimePokemon.contains(p)){
+        _root_ide_package_.com.example.pokedexpokeapi.ui.PokedexGridScreen.TimePokemon.remove(p)
     }else{
-        TimePokemon.add(p)
+        _root_ide_package_.com.example.pokedexpokeapi.ui.PokedexGridScreen.TimePokemon.add(p)
     }
 
 }

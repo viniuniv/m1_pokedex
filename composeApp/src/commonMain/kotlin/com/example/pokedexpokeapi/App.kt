@@ -2,12 +2,9 @@ package com.example.pokedexpokeapi
 
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHost
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,18 +15,20 @@ import com.example.pokedexpokeapi.navigation.PokedexRoute
 import com.example.pokedexpokeapi.navigation.PokemonDetailRoute
 import com.example.pokedexpokeapi.navigation.TeamRoute
 import com.example.pokedexpokeapi.platform.PokemonTeam
-import com.example.pokedexpokeapi.ui.HomeScreen
-import com.example.pokedexpokeapi.ui.PokedexGridScreen
-import com.example.pokedexpokeapi.ui.PokemonDetailScreen
+import com.example.pokedexpokeapi.ui.HomeScreen.HomeScreen
+import com.example.pokedexpokeapi.ui.HomeScreen.HomeViewModel
+import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokedexGridScreen
+import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokedexGridScreenViewModel
+import com.example.pokedexpokeapi.ui.PokemonDetailScreen.PokemonDetailScreen
+import com.example.pokedexpokeapi.ui.PokemonDetailScreen.PokemonDetailScreenViewModel
 
-import org.jetbrains.compose.resources.painterResource
-
-import pokedexpokeapi.composeapp.generated.resources.Res
-import pokedexpokeapi.composeapp.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
 fun App() {
+    val homeViewModel = viewModel<HomeViewModel>()
+    val pokedexGridScreenViewModel = viewModel<PokedexGridScreenViewModel>()
+    val pokemonDetailScreenViewModel = viewModel<PokemonDetailScreenViewModel>()
     MaterialTheme {
         val navController = rememberNavController()
 
@@ -39,6 +38,7 @@ fun App() {
         ) {
             composable<HomeRoute> {
                 HomeScreen(
+                    viewModel = homeViewModel,
                     onSeePokedexClick = {
                         navController.navigate(PokedexRoute)
                     },
@@ -54,6 +54,7 @@ fun App() {
 
             composable<PokedexRoute> {
                 PokedexGridScreen(
+                    viewModel = pokedexGridScreenViewModel,
                     onHomeClick = {
                         navController.navigate(HomeRoute)
                     },
@@ -80,6 +81,7 @@ fun App() {
                 val pokemon = PokemonMock.findById(route.pokemonId)
 
                 PokemonDetailScreen(
+                    viewModel = pokemonDetailScreenViewModel,
                     pokemon = pokemon,
                     onBackClick = {
                         navController.popBackStack()
