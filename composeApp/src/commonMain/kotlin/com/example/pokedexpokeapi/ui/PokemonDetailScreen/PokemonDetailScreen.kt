@@ -20,8 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.example.pokedexpokeapi.data.Pokemon
-import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokedexGridScreenViewModel
+import com.example.pokedexpokeapi.data.classes.Pokemon
 import com.example.pokedexpokeapi.ui.PokedexGridScreen.TimePokemon
 import com.example.pokedexpokeapi.ui.PokedexGridScreen.corTipoPokemon
 import com.example.pokedexpokeapi.ui.capitalizePokemonName
@@ -57,7 +56,7 @@ fun PokemonDetailScreen(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
                 containerColor = corTipoPokemon(
-                    pokemon.types[0]
+                    pokemon.types[0].type.name
                 )
             ),
         ) {
@@ -77,27 +76,23 @@ fun PokemonDetailScreen(
                 )
 
                 AsyncImage(
-                    model = pokemon.imageUrl,
+                    model = pokemon.sprites.front_default,
                     contentDescription = pokemon.name,
                     modifier = Modifier.size(150.dp)
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    pokemon.types.forEach { type ->
+                    pokemon.types.forEach { typeSlot ->
                         AssistChip(
                             colors = AssistChipDefaults.assistChipColors(
                                 containerColor = Color.White
                             ),
                             onClick = {},
-                            label = { Text(type.capitalizePokemonName()) }
+                            label = { Text(typeSlot.type.name.capitalizePokemonName()) }
                         )
                     }
                 }
 
-                Text(
-                    text = pokemon.description,
-                    style = MaterialTheme.typography.bodyLarge
-                )
 
                 Text(
                     text = "Altura: ${pokemon.height}",
@@ -119,7 +114,7 @@ fun PokemonDetailScreen(
 
                 pokemon.stats.forEach { stat ->
                     Text(
-                        text = "${stat.name}: ${stat.value}",
+                        text = "${stat.stat.name}: ${stat.base_stat}",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.fillMaxWidth()
                     )

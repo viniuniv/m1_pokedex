@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
@@ -23,14 +24,19 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.example.pokedexpokeapi.data.Pokemon
+import com.example.pokedexpokeapi.data.classes.Pokemon
+import com.example.pokedexpokeapi.data.classes.PokemonEntity
 import com.example.pokedexpokeapi.ui.capitalizePokemonName
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
 import com.example.pokedexpokeapi.ui.formatPokemonNumber
@@ -45,8 +51,28 @@ fun PokedexGridScreen(
 
     pokemons: List<Pokemon>,
     onPokemonClick: (Int) -> Unit,
-    onBackClick: () -> Unit,
+    onLoadMore: () -> Unit,
 ) {
+    val listState = rememberLazyGridState();
+
+    val shouldLoadMore = remember{
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val totalItemsNumber = layoutInfo.totalItemsCount;
+            val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+
+            lastVisibleIndex > (totalItemsNumber - 3)  || totalItemsNumber == 0
+        }
+    }
+    LaunchedEffect(shouldLoadMore.value){
+        println("leff?")
+        if (shouldLoadMore.value){
+            println("leff? val")
+
+            onLoadMore()
+        }
+    }
+
     ScaffoldPokedex(
         onHomeClick = onHomeClick,
         onSeePokedexClick = onSeePokedexClick,
@@ -61,7 +87,9 @@ fun PokedexGridScreen(
 
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 90.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+
+            state = listState
         ) {
             items(pokemons) { pokemon ->
                 PokemonGridItem(
@@ -87,7 +115,7 @@ fun PokemonGridItem(
             .clickable(onClick = onClick)
             .height(300.dp),
         colors = CardDefaults.cardColors(
-            containerColor = corTipoPokemon(pokemon.types[0])
+            containerColor = corTipoPokemon(pokemon.types[0].type.name)
         ),
 
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
@@ -114,7 +142,7 @@ fun PokemonGridItem(
             ) {
                 AsyncImage(
                     modifier = Modifier.size(80.dp),
-                    model = pokemon.imageUrl,
+                    model = pokemon.sprites.front_default,
                     contentDescription = pokemon.name
                 )
             }
@@ -134,10 +162,10 @@ fun PokemonGridItem(
                 modifier = Modifier.padding(top = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                pokemon.types.forEach { type ->
+                pokemon.types.forEach { typeSlot ->
                     AssistChip(
                         onClick = {},
-                        label = { Text(type.capitalizePokemonName()) },
+                        label = { Text(typeSlot.type.name.capitalizePokemonName()) },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = Color.White
                         ),
@@ -159,7 +187,15 @@ fun corTipoPokemon(tipo:String):Color{
         "fire" -> return Color(0xffeab17b);
         "electric" -> return Color(0xfff3ed96);
         "fairy"->return Color(0xfff4b4b4);
-        "normal"->return Color(0xffe6e6e6)
+        "normal"->return Color(0xffe6e6e6);
+        "bug"->return Color(0xffb2f0a7)
+        "ground"-> return Color(0xffdedc79)
+        "fighting"->return Color(0xfff6ffa1)
+        "psychic"->return Color(0xffdba8da)
+        "rock"->return Color(0xffdcdcdc)
+        "ghost"->return Color(0xffc2aec1)
+        "ice"->return Color(0xffc2d3eb)
+        "dragon"->return Color(0xfff0cf9b)
     }
     return Color(0xff000000)
 }

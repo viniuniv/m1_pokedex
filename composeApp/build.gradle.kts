@@ -6,7 +6,15 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+
     alias(libs.plugins.kotlinSerialization)
+
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 kotlin {
@@ -23,6 +31,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            linkerOpts.add("-lsqlite3")
         }
     }
     
@@ -34,6 +43,8 @@ kotlin {
             implementation("io.ktor:ktor-client-okhttp:3.0.0")
 
             implementation("androidx.activity:activity-compose:1.10.1")
+
+            implementation(libs.androidx.room.sqlite.wrapper)
         }
         iosMain.dependencies {
             implementation("io.ktor:ktor-client-darwin:3.0.0")
@@ -58,6 +69,15 @@ kotlin {
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
 
+
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+
+
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite.bundled)
+            implementation(compose.materialIconsExtended)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -94,5 +114,9 @@ android {
 
 dependencies {
     debugImplementation(libs.compose.uiTooling)
+
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
 }
 

@@ -12,10 +12,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.pokedexpokeapi.data.classes.PokemonDao
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,9 +28,10 @@ fun HomeScreen (
     onHomeClick: ()->Unit,
     onSeePokedexClick: () -> Unit,
     onSeeTeamClick: ()-> Unit,
+    dao: PokemonDao
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
+    val coroutineScope = rememberCoroutineScope()
     ScaffoldPokedex(
         onHomeClick = onHomeClick,
         onSeePokedexClick = onSeePokedexClick,
@@ -49,6 +54,11 @@ fun HomeScreen (
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(top = 12.dp, bottom = 24.dp)
             )
+            Button(onClick = {
+                coroutineScope.launch{
+                    dao.deleteAll()
+                }
+            }){Text("Limpar Registros")}
             Button(onClick = onSeePokedexClick) {
                 Text("Ver Pokedex")
             }
