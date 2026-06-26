@@ -23,7 +23,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -34,7 +34,8 @@ kotlin {
             linkerOpts.add("-lsqlite3")
         }
     }
-    
+
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
@@ -43,8 +44,9 @@ kotlin {
             implementation("io.ktor:ktor-client-okhttp:3.0.0")
 
             implementation("androidx.activity:activity-compose:1.10.1")
-
+            implementation(libs.koin.android)
             implementation(libs.androidx.room.sqlite.wrapper)
+            implementation("com.google.android.gms:play-services-location:21.3.0")
         }
         iosMain.dependencies {
             implementation("io.ktor:ktor-client-darwin:3.0.0")
@@ -78,6 +80,24 @@ kotlin {
             implementation(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
             implementation(compose.materialIconsExtended)
+
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+
+            // aula 01/06
+            implementation(libs.moko.permissions.core)
+            api(libs.moko.permissions.compose)
+            api(libs.moko.permissions.camera)
+            api(libs.moko.permissions.gallery)
+            api(libs.moko.permissions.location)
+
+            // Ícones do Compose
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.components.resources)
+            implementation(compose.materialIconsExtended)
+
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

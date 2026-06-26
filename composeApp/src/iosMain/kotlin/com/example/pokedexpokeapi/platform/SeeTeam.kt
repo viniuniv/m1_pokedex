@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.pokedexpokeapi.data.classes.pokemon.Pokemon
+import com.example.pokedexpokeapi.data.classes.pokemon.captureRecord.CaptureEntity
 import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokemonGridItem
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
 
@@ -17,7 +19,9 @@ actual fun PokemonTeam(
     onSeePokedexClick: () -> Unit,
     onSeeTeamClick: ()-> Unit,
 
-    onPokemonClick:(Int)->Unit
+    onPokemonClick:(Int)->Unit,
+    team: List<CaptureEntity>,
+    pokemons:List<Pokemon>
 
 ){
     ScaffoldPokedex(
@@ -34,8 +38,8 @@ actual fun PokemonTeam(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(TimePokemon.size) { i ->
-                val p = TimePokemon[i]
+            items(team.size) { i ->
+                val p = team[i]
                 PokemonGridItem(pokemon = p, onClick = { onPokemonClick(p.id) })
             }
 

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,27 +17,31 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.example.pokedexpokeapi.data.classes.Pokemon
-import com.example.pokedexpokeapi.data.classes.PokemonEntity
+import com.example.pokedexpokeapi.data.classes.pokemon.Pokemon
 import com.example.pokedexpokeapi.ui.capitalizePokemonName
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
 import com.example.pokedexpokeapi.ui.formatPokemonNumber
@@ -53,22 +58,41 @@ fun PokedexGridScreen(
     onPokemonClick: (Int) -> Unit,
     onLoadMore: () -> Unit,
 ) {
-    val listState = rememberLazyGridState();
+    var pokemonFilters = remember { mutableStateListOf<String>() }
+    var showFilterDialog by remember { mutableStateOf(false) }
 
-    val shouldLoadMore = remember{
+    val typeFilterOptions =
+        listOf(
+            "water",
+            "poison",
+            "flying",
+            "grass",
+            "fire",
+            "electric",
+            "fairy",
+            "normal",
+            "bug",
+            "ground",
+            "fighting",
+            "psychic",
+            "rock",
+            "ghost",
+            "ice",
+            "dragon"
+        )
+
+    val listState = rememberLazyGridState();
+    val shouldLoadMore = remember {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
             val totalItemsNumber = layoutInfo.totalItemsCount;
             val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
 
-            lastVisibleIndex > (totalItemsNumber - 3)  || totalItemsNumber == 0
+            lastVisibleIndex > (totalItemsNumber - 3) || totalItemsNumber == 0
         }
     }
-    LaunchedEffect(shouldLoadMore.value){
-        println("leff?")
-        if (shouldLoadMore.value){
-            println("leff? val")
-
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value) {
             onLoadMore()
         }
     }
@@ -77,10 +101,34 @@ fun PokedexGridScreen(
         onHomeClick = onHomeClick,
         onSeePokedexClick = onSeePokedexClick,
         onSeeTeamClick = onSeeTeamClick,
-        viewName = "PokéDex"
-    ) {
+        viewName = "PokéDex",
 
-
+        ) {
+        if (showFilterDialog) {
+            AlertDialog(
+                onDismissRequest = { showFilterDialog = false },
+                title = { Text("Selectione os tipos para filtrar") },
+                text = {
+                    Column {
+                        typeFilterOptions.forEach { option ->
+                            Text(
+                                text = option,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        if (pokemonFilters.contains(option)) {
+                                            pokemonFilters.remove(option)
+                                        } else {
+                                            pokemonFilters.add(option)
+                                        }
+                                    }.padding(12.dp)
+                            )
+                        }
+                    }
+                },
+                confirmButton = {}
+            )
+        }
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier,
@@ -89,25 +137,65 @@ fun PokedexGridScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
 
-            state = listState
-        ) {
+            state = listState,
+
+            ) {
+
             items(pokemons) { pokemon ->
-                PokemonGridItem(
-                    pokemon = pokemon,
-                    onClick = { onPokemonClick(pokemon.id) }
-                )
+                if (pokemonFilters.isEmpty()) {
+                    PokemonGridItem(
+                        pokemon = pokemon,
+                        onClick = { onPokemonClick(pokemon.id) }
+                    )
+                } else {
+                    var filterPassed = true;
+                    for (type in pokemon.types) {
+                        print(type.type.name)
+                        print("\n")
+                        if (!pokemonFilters.contains(type.type.name)) {
+                            print("notcoontai?")
+                            filterPassed = false
+                        }
+                    }
+                    if (filterPassed) {
+                        PokemonGridItem(
+                            pokemon = pokemon,
+                            onClick = { onPokemonClick(pokemon.id) }
+                        )
+                    }
+                }
             }
         }
 
     }
+    Box(
+            modifier = Modifier
+                .fillMaxSize()
 
+            ){
+        FloatingActionButton(
+            onClick = {
+                        showFilterDialog = true
+                      },
+            modifier = Modifier.align(
+                Alignment.BottomEnd
+            ).padding(16.dp)
+        )
+        {
+            Icon(
+                imageVector = Icons.Filled.List,
+                contentDescription = "er"
+            )
+        }
+    }
 
 }
+
 
 @Composable
 fun PokemonGridItem(
     pokemon: Pokemon,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -125,7 +213,7 @@ fun PokemonGridItem(
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(TimePokemon.contains(pokemon)){
+            if (TimePokemon.contains(pokemon)) {
                 Icon(
                     modifier = Modifier.align(Alignment.End),
                     tint = Color(0x006400),
@@ -177,26 +265,28 @@ fun PokemonGridItem(
         }
     }
 }
+
 @Composable
-fun corTipoPokemon(tipo:String):Color{
-    when(tipo){
+fun corTipoPokemon(tipo: String): Color {
+    when (tipo) {
         "water" -> return Color(0xff93c3ca);
-        "poison"-> return Color(0xff35612a);
-        "flying"->return Color(0xffcedaa2);
-        "grass"-> return Color(0xff9ed590);
+        "poison" -> return Color(0xff35612a);
+        "flying" -> return Color(0xffcedaa2);
+        "grass" -> return Color(0xff9ed590);
         "fire" -> return Color(0xffeab17b);
         "electric" -> return Color(0xfff3ed96);
-        "fairy"->return Color(0xfff4b4b4);
-        "normal"->return Color(0xffe6e6e6);
-        "bug"->return Color(0xffb2f0a7)
-        "ground"-> return Color(0xffdedc79)
-        "fighting"->return Color(0xfff6ffa1)
-        "psychic"->return Color(0xffdba8da)
-        "rock"->return Color(0xffdcdcdc)
-        "ghost"->return Color(0xffc2aec1)
-        "ice"->return Color(0xffc2d3eb)
-        "dragon"->return Color(0xfff0cf9b)
+        "fairy" -> return Color(0xfff4b4b4);
+        "normal" -> return Color(0xffe6e6e6);
+        "bug" -> return Color(0xffb2f0a7)
+        "ground" -> return Color(0xffdedc79)
+        "fighting" -> return Color(0xfff6ffa1)
+        "psychic" -> return Color(0xffdba8da)
+        "rock" -> return Color(0xffdcdcdc)
+        "ghost" -> return Color(0xffc2aec1)
+        "ice" -> return Color(0xffc2d3eb)
+        "dragon" -> return Color(0xfff0cf9b)
     }
     return Color(0xff000000)
 }
+
 val TimePokemon = mutableStateListOf<Pokemon>()

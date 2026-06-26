@@ -1,6 +1,21 @@
-package com.example.pokedexpokeapi.data.classes
+package com.example.pokedexpokeapi.data.classes.pokemon
 
 import kotlinx.serialization.Serializable
+
+@Serializable
+data class Pokemon(
+    val id: Int,
+    val name: String,
+
+//    val imageUrl: String,
+    val types: List<PokemonTypeSlot>,
+    val height: Int,
+    val weight: Int,
+    val stats: List<PokemonStat>,
+    val sprites:PokemonSpriteSlot
+//    val description: String,
+)
+
 
 @Serializable
 data class PokemonSpriteSlot(
@@ -24,18 +39,4 @@ data class PokemonTypeSlot(
 data class PokemonType(
     val name: String
 )
-
-@Serializable
-data class Pokemon(
-    val id: Int,
-    val name: String,
-
-//    val imageUrl: String,
-    val types: List<PokemonTypeSlot>,
-    val height: Int,
-    val weight: Int,
-    val stats: List<PokemonStat>,
-    val sprites:PokemonSpriteSlot
-//    val description: String,
-    )
 

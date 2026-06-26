@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "a4387390dd41c2188dcabf55a2d4a3f4",
+    "version": 2,
+    "identityHash": "629ccc71a64f804b2b0da8a5f0255f44",
     "entities": [
       {
         "tableName": "PokemonEntity",
@@ -30,7 +30,7 @@
       },
       {
         "tableName": "CaptureEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `lat` REAL NOT NULL, `long` REAL NOT NULL, `photoPath` TEXT NOT NULL, `pokemonId` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `lat` REAL NOT NULL, `long` REAL NOT NULL, `pokemonId` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -51,12 +51,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "photoPath",
-            "columnName": "photoPath",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
             "fieldPath": "pokemonId",
             "columnName": "pokemonId",
             "affinity": "INTEGER",
@@ -64,7 +58,7 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
             "id"
           ]
@@ -73,7 +67,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a4387390dd41c2188dcabf55a2d4a3f4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '629ccc71a64f804b2b0da8a5f0255f44')"
     ]
   }
 }

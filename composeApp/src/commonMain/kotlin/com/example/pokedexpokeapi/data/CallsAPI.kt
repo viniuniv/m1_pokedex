@@ -1,8 +1,6 @@
 package com.example.pokedexpokeapi.data
 
-import com.example.pokedexpokeapi.data.classes.Pokemon
-import com.example.pokedexpokeapi.data.classes.PokemonDao
-import com.example.pokedexpokeapi.data.classes.PokemonEntity
+import com.example.pokedexpokeapi.data.classes.pokemon.Pokemon
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -71,7 +69,6 @@ class CallsAPI {
 
         val pokemonResponse = response.body<PokemonResponse>()
         val pokemonList = pokemonResponse.results
-        println(pokemonList.size)
         return pokemonList
 
     }

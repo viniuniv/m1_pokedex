@@ -16,10 +16,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.pokedexpokeapi.data.classes.PokemonDao
+import com.example.pokedexpokeapi.data.classes.pokemon.PokemonDao
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
-import kotlinx.coroutines.coroutineScope
+import dev.icerock.moko.permissions.PermissionsController
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +29,6 @@ fun HomeScreen (
     onHomeClick: ()->Unit,
     onSeePokedexClick: () -> Unit,
     onSeeTeamClick: ()-> Unit,
-    dao: PokemonDao
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -37,6 +37,7 @@ fun HomeScreen (
         onSeePokedexClick = onSeePokedexClick,
         onSeeTeamClick = onSeeTeamClick,
         viewName = "PokéDex"
+
     ) {
         Column(
             modifier = Modifier
@@ -49,20 +50,15 @@ fun HomeScreen (
                 text = "Pokedex KMP",
                 style = MaterialTheme.typography.headlineLarge,
             )
-            Text(
-                text = "Exemplo de navegação, grid, utilização de imagens e objetos",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 12.dp, bottom = 24.dp)
-            )
-            Button(onClick = {
-                coroutineScope.launch{
-                    dao.deleteAll()
-                }
-            }){Text("Limpar Registros")}
+
             Button(onClick = onSeePokedexClick) {
                 Text("Ver Pokedex")
             }
+
+
+
         }
+
 
 
     }

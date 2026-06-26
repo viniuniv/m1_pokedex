@@ -1,4 +1,4 @@
-package com.example.pokedexpokeapi.data.classes
+package com.example.pokedexpokeapi.data.classes.pokemon
 
 import androidx.room.Dao
 import androidx.room.Delete

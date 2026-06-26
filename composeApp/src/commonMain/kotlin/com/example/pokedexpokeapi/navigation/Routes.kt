@@ -12,7 +12,8 @@ object TeamRoute
 @Serializable
 data class PokemonDetailRoute(val pokemonId: Int)
 
-
+@Serializable
+data class CaptureRoute(val pokemonId: Int)
 
 class Routes {
 }

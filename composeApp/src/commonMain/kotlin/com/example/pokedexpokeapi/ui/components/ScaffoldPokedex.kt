@@ -28,17 +28,16 @@ fun ScaffoldPokedex(
     onSeePokedexClick: () -> Unit,
     onSeeTeamClick: () -> Unit,
     viewName: String,
-    content: @Composable (PaddingValues) -> Unit
 
-) {
+    content: @Composable (PaddingValues) -> Unit,
+
+    ) {
     Scaffold(
-
         topBar = {
             TopAppBar(
                 title = { Text(viewName, fontSize = 32.sp) }
             )
         },
-
         bottomBar = {
             BottomAppBar() {
                 Box(
@@ -53,7 +52,6 @@ fun ScaffoldPokedex(
                                 contentDescription = "er"
                             )
                         }
-
                         FloatingActionButton(onClick = onSeePokedexClick) {
                             Icon(
                                 imageVector = Icons.Filled.GridView,
@@ -64,17 +62,15 @@ fun ScaffoldPokedex(
                             Icon(
                                 imageVector = Icons.Filled.Person,
                                 contentDescription = "er"
-
                             )
                         }
                     }
-
                 }
-
-
             };
-        }
-    ) { innerPadding ->
+        },
+
+
+        ) { innerPadding ->
         content(innerPadding)
     }
 
