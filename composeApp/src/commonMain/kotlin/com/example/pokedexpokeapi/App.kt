@@ -115,7 +115,8 @@ fun App(context: Any? = null) {
                         runBlocking {
                             loadMorePokemons(loadedPokemons, api)
                         }
-                    }
+                    },
+                    captureEntities = captureEntities
                 )
             }
 

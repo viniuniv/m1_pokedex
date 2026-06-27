@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.pokedexpokeapi.data.classes.pokemon.Pokemon
+import com.example.pokedexpokeapi.data.classes.pokemon.captureRecord.CaptureEntity
 import com.example.pokedexpokeapi.ui.capitalizePokemonName
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
 import com.example.pokedexpokeapi.ui.formatPokemonNumber
@@ -57,10 +58,28 @@ fun PokedexGridScreen(
     pokemons: List<Pokemon>,
     onPokemonClick: (Int) -> Unit,
     onLoadMore: () -> Unit,
+    captureEntities: List<CaptureEntity>,
 ) {
+    val pokemonsToDisplay = remember { mutableStateListOf<Pokemon>() }
     var pokemonFilters = remember { mutableStateListOf<String>() }
     var showFilterDialog by remember { mutableStateOf(false) }
-
+    if (pokemonFilters.isEmpty()) {
+        pokemonsToDisplay.clear()
+        pokemonsToDisplay.addAll(pokemons)
+    } else {
+        pokemonsToDisplay.clear()
+        for (pokemon in pokemons) {
+            var filterPassed = true;
+            for (type in pokemon.types) {
+                if (!pokemonFilters.contains(type.type.name)) {
+                    filterPassed = false
+                }
+            }
+            if (filterPassed) {
+                pokemonsToDisplay.add(pokemon)
+            }
+        }
+    }
     val typeFilterOptions =
         listOf(
             "water",
@@ -141,45 +160,28 @@ fun PokedexGridScreen(
 
             ) {
 
-            items(pokemons) { pokemon ->
-                if (pokemonFilters.isEmpty()) {
-                    PokemonGridItem(
-                        pokemon = pokemon,
-                        onClick = { onPokemonClick(pokemon.id) }
-                    )
-                } else {
-                    var filterPassed = true;
-                    for (type in pokemon.types) {
-                        print(type.type.name)
-                        print("\n")
-                        if (!pokemonFilters.contains(type.type.name)) {
-                            print("notcoontai?")
-                            filterPassed = false
-                        }
-                    }
-                    if (filterPassed) {
-                        PokemonGridItem(
-                            pokemon = pokemon,
-                            onClick = { onPokemonClick(pokemon.id) }
-                        )
-                    }
-                }
+            items(pokemonsToDisplay) { pokemon ->
+                PokemonGridItem(
+                    pokemon = pokemon,
+                    onClick = { onPokemonClick(pokemon.id) }
+                )
             }
+
         }
 
     }
     Box(
-            modifier = Modifier
-                .fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
 
-            ){
+    ) {
         FloatingActionButton(
             onClick = {
-                        showFilterDialog = true
-                      },
+                showFilterDialog = true
+            },
             modifier = Modifier.align(
-                Alignment.BottomEnd
-            ).padding(16.dp)
+                Alignment.TopEnd
+            ).padding(64.dp)
         )
         {
             Icon(
@@ -213,15 +215,6 @@ fun PokemonGridItem(
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (TimePokemon.contains(pokemon)) {
-                Icon(
-                    modifier = Modifier.align(Alignment.End),
-                    tint = Color(0x006400),
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = "er"
-
-                )
-            }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -288,5 +281,3 @@ fun corTipoPokemon(tipo: String): Color {
     }
     return Color(0xff000000)
 }
-
-val TimePokemon = mutableStateListOf<Pokemon>()

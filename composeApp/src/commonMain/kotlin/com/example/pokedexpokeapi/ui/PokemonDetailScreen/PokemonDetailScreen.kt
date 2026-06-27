@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -91,7 +92,8 @@ fun PokemonDetailScreen(
                             bitmap = bitmap!!,
                             contentDescription = "Foto capturada",
                             modifier = Modifier
-                                .size(300.dp),
+                                .size(300.dp)
+                                .rotate(90.toFloat()),
                             contentScale = ContentScale.Crop
 
                         )
