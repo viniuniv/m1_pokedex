@@ -173,6 +173,13 @@ fun App(context: Any? = null) {
             }
 
             composable<TeamRoute> {
+                for(capture in captureEntities){
+                    if (!loadedPokemons.any{it.id == capture.pokemonId}){
+                        runBlocking {
+                            loadedPokemons.add(api.getPokemon(capture.pokemonId))
+                        }
+                    }
+                }
                 PokemonTeam(
                     onHomeClick = {
                         navController.navigate(HomeRoute)
