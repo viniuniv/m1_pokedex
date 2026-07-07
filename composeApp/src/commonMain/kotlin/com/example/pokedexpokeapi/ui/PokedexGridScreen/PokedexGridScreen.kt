@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -30,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -43,9 +45,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.pokedexpokeapi.data.classes.pokemon.Pokemon
 import com.example.pokedexpokeapi.data.classes.pokemon.captureRecord.CaptureEntity
-import com.example.pokedexpokeapi.ui.capitalizePokemonName
+import com.example.pokedexpokeapi.ui.components.PokemonGridItem
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
-import com.example.pokedexpokeapi.ui.formatPokemonNumber
 
 @Composable
 fun PokedexGridScreen(
@@ -60,23 +61,21 @@ fun PokedexGridScreen(
     onLoadMore: () -> Unit,
     captureEntities: List<CaptureEntity>,
 ) {
-    val pokemonsToDisplay = remember { mutableStateListOf<Pokemon>() }
+
     var pokemonFilters = remember { mutableStateListOf<String>() }
     var showFilterDialog by remember { mutableStateOf(false) }
-    if (pokemonFilters.isEmpty()) {
-        pokemonsToDisplay.clear()
-        pokemonsToDisplay.addAll(pokemons)
-    } else {
-        pokemonsToDisplay.clear()
-        for (pokemon in pokemons) {
-            var filterPassed = true;
-            for (type in pokemon.types) {
-                if (!pokemonFilters.contains(type.type.name)) {
-                    filterPassed = false
+    val state by viewModel.uiState.collectAsState()
+
+    val pokemonsToDisplay = remember(pokemons, pokemonFilters.size) {
+        if (pokemonFilters.isEmpty()) {
+            pokemons // Just use the original list if no filters
+        } else {
+            pokemons.filter { pokemon ->
+                // Check if every type of the pokemon is included in the filters
+                // Or change to .any if you want "at least one type matches"
+                pokemon.types.all { typeSlot ->
+                    pokemonFilters.contains(typeSlot.type.name)
                 }
-            }
-            if (filterPassed) {
-                pokemonsToDisplay.add(pokemon)
             }
         }
     }
@@ -101,18 +100,30 @@ fun PokedexGridScreen(
         )
 
     val listState = rememberLazyGridState();
-    val shouldLoadMore = remember {
+    // 1. Monitor the last visible item index
+    val lastVisibleItemIndex by remember {
         derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val totalItemsNumber = layoutInfo.totalItemsCount;
-            val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-
-            lastVisibleIndex > (totalItemsNumber - 3) || totalItemsNumber == 0
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
         }
     }
-    LaunchedEffect(shouldLoadMore.value) {
-        if (shouldLoadMore.value) {
-            onLoadMore()
+
+// 2. Trigger whenever that index changes
+    LaunchedEffect(lastVisibleItemIndex) {
+        val totalItems = listState.layoutInfo.totalItemsCount
+
+        // Threshold: Trigger when user sees an item within 5 of the end
+        if (totalItems > 0 && lastVisibleItemIndex >= totalItems - 6) {
+            if (!state.isLoading) {
+                println("Triggering load for index: $lastVisibleItemIndex")
+                viewModel.loadMorePokemons()
+            }
+        }
+    }
+
+// 3. Special case: Trigger initial load if the list is empty
+    LaunchedEffect(pokemons.size) {
+        if (pokemons.isEmpty() && !state.isLoading) {
+            viewModel.loadMorePokemons()
         }
     }
 
@@ -120,9 +131,10 @@ fun PokedexGridScreen(
         onHomeClick = onHomeClick,
         onSeePokedexClick = onSeePokedexClick,
         onSeeTeamClick = onSeeTeamClick,
-        viewName = "PokéDex",
+        viewName = "PokeDex",
 
         ) {
+        innerPadding ->
         if (showFilterDialog) {
             AlertDialog(
                 onDismissRequest = { showFilterDialog = false },
@@ -150,9 +162,14 @@ fun PokedexGridScreen(
         }
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            modifier = Modifier,
-
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 90.dp),
+            modifier = Modifier.fillMaxSize(),
+            // We ignore the bottom padding here to let items scroll behind the bar
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding() + 16.dp,
+                bottom = 16.dp, // Use a small fixed value instead of the bar's height
+                start = 8.dp,
+                end = 8.dp
+            ),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
 
@@ -166,118 +183,39 @@ fun PokedexGridScreen(
                     onClick = { onPokemonClick(pokemon.id) }
                 )
             }
-
         }
-
     }
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-
+        modifier = Modifier.fillMaxSize()
     ) {
+        // Layer 1: The Filter Button (Already here)
         FloatingActionButton(
-            onClick = {
-                showFilterDialog = true
-            },
-            modifier = Modifier.align(
-                Alignment.TopEnd
-            ).padding(64.dp)
-        )
-        {
-            Icon(
-                imageVector = Icons.Filled.List,
-                contentDescription = "er"
-            )
-        }
-    }
-
-}
-
-
-@Composable
-fun PokemonGridItem(
-    pokemon: Pokemon,
-    onClick: () -> Unit,
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .height(300.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = corTipoPokemon(pokemon.types[0].type.name)
-        ),
-
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-    ) {
-        Column(
+            onClick = { showFilterDialog = true },
             modifier = Modifier
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .align(Alignment.TopEnd)
+                .padding(top = 90.dp, end = 16.dp) // Adjusted padding to fit your screen
         ) {
-            Box(
+            Icon(imageVector = Icons.Filled.List, contentDescription = "Filter")
+        }
+
+        // Layer 2: The Loading Indicator (Floating above everything)
+        if (state.isLoading) {
+            Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp),
-                contentAlignment = Alignment.Center
+                    .align(Alignment.BottomCenter) // Positions it at the bottom
+                    .padding(bottom = 40.dp),      // Floats it exactly above the BottomBar icons
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.9f)
+                )
             ) {
-                AsyncImage(
-                    modifier = Modifier.size(80.dp),
-                    model = pokemon.sprites.front_default,
-                    contentDescription = pokemon.name
+                androidx.compose.material3.CircularProgressIndicator(
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 4.dp
                 )
             }
-
-            Text(
-                text = pokemon.id.formatPokemonNumber(),
-                style = MaterialTheme.typography.labelLarge
-            )
-
-            Text(
-                text = pokemon.name.capitalizePokemonName(),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 6.dp)
-            )
-
-            Column(
-                modifier = Modifier.padding(top = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                pokemon.types.forEach { typeSlot ->
-                    AssistChip(
-                        onClick = {},
-                        label = { Text(typeSlot.type.name.capitalizePokemonName()) },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = Color.White
-                        ),
-                        modifier = Modifier.padding(vertical = 2.dp)
-
-                    )
-                }
-            }
         }
     }
-}
-
-@Composable
-fun corTipoPokemon(tipo: String): Color {
-    when (tipo) {
-        "water" -> return Color(0xff93c3ca);
-        "poison" -> return Color(0xff35612a);
-        "flying" -> return Color(0xffcedaa2);
-        "grass" -> return Color(0xff9ed590);
-        "fire" -> return Color(0xffeab17b);
-        "electric" -> return Color(0xfff3ed96);
-        "fairy" -> return Color(0xfff4b4b4);
-        "normal" -> return Color(0xffe6e6e6);
-        "bug" -> return Color(0xffb2f0a7)
-        "ground" -> return Color(0xffdedc79)
-        "fighting" -> return Color(0xfff6ffa1)
-        "psychic" -> return Color(0xffdba8da)
-        "rock" -> return Color(0xffdcdcdc)
-        "ghost" -> return Color(0xffc2aec1)
-        "ice" -> return Color(0xffc2d3eb)
-        "dragon" -> return Color(0xfff0cf9b)
-    }
-    return Color(0xff000000)
 }

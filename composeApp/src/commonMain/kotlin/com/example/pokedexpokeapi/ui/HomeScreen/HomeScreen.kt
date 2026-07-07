@@ -3,8 +3,11 @@ package com.example.pokedexpokeapi.ui.HomeScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -15,52 +18,48 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.unit.dp
-import com.example.pokedexpokeapi.data.classes.pokemon.PokemonDao
+import coil3.compose.AsyncImage
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
-import dev.icerock.moko.permissions.PermissionsController
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen (
-    viewModel: HomeViewModel,
-    onHomeClick: ()->Unit,
+fun HomeScreen(
+    randomPokemonUrl: String,
     onSeePokedexClick: () -> Unit,
-    onSeeTeamClick: ()-> Unit,
+    onHomeClick: () -> Unit,
+    onSeeTeamClick: () -> Unit,
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
     ScaffoldPokedex(
         onHomeClick = onHomeClick,
         onSeePokedexClick = onSeePokedexClick,
         onSeeTeamClick = onSeeTeamClick,
-        viewName = "PokéDex"
-
-    ) {
+        viewName = "Início"
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Pokedex KMP",
-                style = MaterialTheme.typography.headlineLarge,
+                text = "KMP - Pokedex",
+                style = MaterialTheme.typography.headlineLarge
+            )
+            AsyncImage(
+                model = randomPokemonUrl,
+                contentDescription = "Random Pokemon",
+                modifier = Modifier.size(250.dp),
+                filterQuality = FilterQuality.None
             )
 
+            Spacer(modifier = Modifier.height(24.dp))
+
             Button(onClick = onSeePokedexClick) {
-                Text("Ver Pokedex")
+                Text("Entrar na Pokedex")
             }
-
-
-
         }
-
-
-
     }
-
 }

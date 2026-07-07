@@ -25,7 +25,7 @@ actual fun HomeScreen (
         onHomeClick = onHomeClick,
         onSeePokedexClick = onSeePokedexClick,
         onSeeTeamClick = onSeeTeamClick,
-        viewName = "PokéDex"
+        viewName = "PokeDex"
     ) {
         Column(
             modifier = Modifier

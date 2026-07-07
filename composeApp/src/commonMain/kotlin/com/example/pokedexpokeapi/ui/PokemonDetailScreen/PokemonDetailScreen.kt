@@ -17,6 +17,7 @@ import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,19 +26,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.cameraService.rememberBitmapFromPath
 import com.example.pokedexpokeapi.data.classes.pokemon.Pokemon
 import com.example.pokedexpokeapi.data.classes.pokemon.captureRecord.CaptureEntity
-import com.example.pokedexpokeapi.ui.PokedexGridScreen.corTipoPokemon
-import com.example.pokedexpokeapi.ui.capitalizePokemonName
-import com.example.pokedexpokeapi.ui.formatPokemonNumber
+import com.example.pokedexpokeapi.ui.components.capitalizePokemonName
+import com.example.pokedexpokeapi.ui.components.corTipoPokemon
 
 @Composable
 fun PokemonDetailScreen(
-    viewModel: PokemonDetailScreenViewModel,
     pokemon: Pokemon?,
     onBackClick: () -> Unit,
     onCaptureClick: (Int) -> Unit,
@@ -54,7 +55,7 @@ fun PokemonDetailScreen(
         }
         if (pokemon == null) {
             Text(
-                text = "Pokémon não encontrado.",
+                text = "Pokemon não encontrado.",
                 style = MaterialTheme.typography.bodyLarge
             )
             return
@@ -73,12 +74,10 @@ fun PokemonDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = pokemon.id.formatPokemonNumber(),
-                    style = MaterialTheme.typography.labelLarge
-                )
-                Text(
                     text = pokemon.name.capitalizePokemonName(),
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontSize = 48.sp
+
                 )
                 if (captureEntity != null) {
                     val bitmap = rememberBitmapFromPath(captureEntity.photoPath)
@@ -121,14 +120,33 @@ fun PokemonDetailScreen(
                         )
                     }
                 }
-                Text(
-                    text = "Altura: ${pokemon.height}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "Peso: ${pokemon.weight}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row(){
+                    Column(){
+                        Text(
+                            text = "Altura: ${pokemon.height}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "Peso: ${pokemon.weight}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    if (captureEntity != null) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            Text(
+                                text = "Capturado em:",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Text(
+                                text = "Lat: ${captureEntity.lat} \n Long: ${captureEntity.long}",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -151,29 +169,28 @@ fun PokemonDetailScreen(
                             )
                         }
                     }
-                    if (captureEntity != null) {
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = "Capturado em:",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Text(
-                                text = "Lat: ${captureEntity.lat} \n Long: ${captureEntity.long}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
+
                 }
             }
         }
-        Button(onClick = { onCaptureClick(pokemon.id) }) {
+        Button(
+            onClick = { onCaptureClick(pokemon.id) },
+        ) {
+            AsyncImage(
+                model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
+                contentDescription = null,
+                filterQuality = FilterQuality.None,
+                alpha = if(captureEntity != null) 0.5f else 1f,
+
+                modifier = Modifier
+                    .size(64.dp)
+                    .padding(end = 8.dp)
+            )
             if (captureEntity != null) {
                 Text("Remover do Time")
             } else {
+                // Since Button content is a RowScope, we can just place items side by side
+
                 Text("Capturar")
             }
         }

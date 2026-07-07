@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.pokedexpokeapi.data.classes.pokemon.Pokemon
 import com.example.pokedexpokeapi.data.classes.pokemon.captureRecord.CaptureEntity
-import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokemonGridItem
+import com.example.pokedexpokeapi.ui.components.PokemonGridItem
 import com.example.pokedexpokeapi.ui.components.ScaffoldPokedex
 
 @Composable

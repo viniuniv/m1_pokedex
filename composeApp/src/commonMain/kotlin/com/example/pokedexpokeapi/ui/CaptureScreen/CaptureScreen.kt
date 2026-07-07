@@ -93,7 +93,9 @@ fun CaptureScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (capturedImagePath != null) {
+
                 bitmap = rememberBitmapFromPath(capturedImagePath)
+
                 if (bitmap != null) {
                     Box(
                         modifier = Modifier.wrapContentSize()
@@ -137,14 +139,13 @@ fun CaptureScreen(
                             }
                         }
                         viewModel.setLoading(true)
-
                     }
                 ) {
-                    Text("Registrar Localização")
+                    Text("Registrar Local")
                 }
             }
             if (!locationPermissionGranted) {
-                Text("Para regitrar a captura, é necessário permissão de acesso à localização.")
+                Text("Para regitrar a captura, conceda acesso ao GPS de seu dispositivo.")
             }
             if (deviceLocation != null) {
                 Text("Capturado em:\n ${deviceLocation?.latitude}, ${deviceLocation?.longitude}")
@@ -166,7 +167,7 @@ fun CaptureScreen(
                 Text("Fotografar Captura")
             }
             if (!cameraPermissionGranted) {
-                Text("Para registrar a captura, é necessário permissão de acesso à câmera.")
+                Text("Para registrar a captura, conceda acesso ao sistema de captura de imagens.")
             }
 
             Button(

@@ -1,6 +1,12 @@
 package com.example.pokedexpokeapi
 
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
@@ -10,7 +16,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.pokedexpokeapi.data.CallsAPI
-import com.example.pokedexpokeapi.data.PokemonEntry
 import com.example.pokedexpokeapi.data.classes.pokemon.Pokemon
 import com.example.pokedexpokeapi.data.classes.pokemon.captureRecord.CaptureEntity
 import com.example.pokedexpokeapi.data.getDatabaseBuilder
@@ -24,15 +29,15 @@ import com.example.pokedexpokeapi.platform.PokemonTeam
 import com.example.pokedexpokeapi.ui.CaptureScreen.CaptureScreen
 import com.example.pokedexpokeapi.ui.CaptureScreen.CaptureScreenViewModel
 import com.example.pokedexpokeapi.ui.HomeScreen.HomeScreen
-import com.example.pokedexpokeapi.ui.HomeScreen.HomeViewModel
 import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokedexGridScreen
 import com.example.pokedexpokeapi.ui.PokedexGridScreen.PokedexGridScreenViewModel
 import com.example.pokedexpokeapi.ui.PokemonDetailScreen.PokemonDetailScreen
-import com.example.pokedexpokeapi.ui.PokemonDetailScreen.PokemonDetailScreenViewModel
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kotlinx.coroutines.runBlocking
-
+import com.example.pokedexpokeapi.ui.components.font.AppTypography
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @Composable
 @Preview
@@ -43,10 +48,8 @@ fun App(context: Any? = null) {
 
     BindEffect(permissionsController)
     val api = remember { CallsAPI() }
-    val homeViewModel = viewModel<HomeViewModel>()
 
     val pokedexGridScreenViewModel = viewModel<PokedexGridScreenViewModel>()
-    val pokemonDetailScreenViewModel = viewModel<PokemonDetailScreenViewModel>()
 
     val database = remember(context) {
         val builder = getDatabaseBuilder(context)
@@ -54,41 +57,68 @@ fun App(context: Any? = null) {
     }
     val pokemonDao = database.pokemonDao();
 
-    val AllEntities by pokemonDao.getAll().collectAsState(initial = emptyList())
     val loadedPokemons = remember { mutableStateListOf<Pokemon>() };
 
     val captureDao = database.captureDao()
     val captureEntities by captureDao.getAll().collectAsState(initial = emptyList())
-    val shouldLoad = true
 
-    LaunchedEffect(shouldLoad, AllEntities) {
-        if (shouldLoad) {
-            val entries: List<PokemonEntry> = api.getPokemonEntries()
-            pokemonDao.populateIfEmpty(entries)
-
-            loadMorePokemons(loadedPokemons, api)
-        }
+    LaunchedEffect(Unit) {
+        pokedexGridScreenViewModel.initializeAndLoad(pokemonDao)
     }
 
-    MaterialTheme {
+    MaterialTheme(
+        typography = AppTypography()
+    ) {
         val navController = rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = HomeRoute
+            startDestination = HomeRoute,
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it }, // Start from the right (full screen width)
+                    animationSpec = tween(400, easing = FastOutSlowInEasing)
+                ) + fadeIn(animationSpec = tween(400))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { -it }, // Exit to the left
+                    animationSpec = tween(400, easing = FastOutSlowInEasing)
+                ) + fadeOut(animationSpec = tween(400))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { -it }, // Enter from the left
+                    animationSpec = tween(400, easing = FastOutSlowInEasing)
+                ) + fadeIn(animationSpec = tween(400))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it }, // Exit to the right
+                    animationSpec = tween(400, easing = FastOutSlowInEasing)
+                ) + fadeOut(animationSpec = tween(400))
+            }
         ) {
             composable<HomeRoute> {
-                HomeScreen(
-                    viewModel = homeViewModel,
-                    onSeePokedexClick = {
-                        navController.navigate(PokedexRoute)
-                    },
-                    onHomeClick = {
-                        navController.navigate(HomeRoute)
-                    },
-                    onSeeTeamClick = {
-                        navController.navigate(TeamRoute)
-                    },
+                val scope = rememberCoroutineScope()
+                val uiState by pokedexGridScreenViewModel.uiState.collectAsState()
 
+                // 1. Generate a random Pokemon ID (1 to 1025)
+                val randomPokemonId = remember { (1..1025).random() }
+                val randomPokemonImageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$randomPokemonId.png"
+
+                HomeScreen(
+                    randomPokemonUrl = randomPokemonImageUrl, // Pass this new parameter
+                    onSeePokedexClick = {
+                        scope.launch {
+                            if (pokedexGridScreenViewModel.pokemons.isEmpty()) {
+                                pokedexGridScreenViewModel.loadMorePokemons()
+                                pokedexGridScreenViewModel.uiState.first { !it.isLoading }
+                            }
+                            navController.navigate(PokedexRoute)
+                        }
+                    },
+                    onHomeClick = { navController.navigate(HomeRoute) },
+                    onSeeTeamClick = { navController.navigate(TeamRoute) },
                 )
             }
 
@@ -106,51 +136,45 @@ fun App(context: Any? = null) {
                         navController.navigate(TeamRoute)
                     },
 
-                    pokemons = loadedPokemons,
-                    onPokemonClick = {
-                        pokemonId ->
+                    pokemons = pokedexGridScreenViewModel.pokemons,
+                    onPokemonClick = { pokemonId ->
                         navController.navigate(PokemonDetailRoute(pokemonId))
                     },
                     onLoadMore = {
-                        runBlocking {
-                            loadMorePokemons(loadedPokemons, api)
-                        }
+                        pokedexGridScreenViewModel.loadMorePokemons()
                     },
                     captureEntities = captureEntities
                 )
             }
 
-            composable<PokemonDetailRoute> {
-                backStackEntry ->
+            composable<PokemonDetailRoute> { backStackEntry ->
                 val route = backStackEntry.toRoute<PokemonDetailRoute>()
-                val pokemon = loadedPokemons.find{it.id == route.pokemonId}
-                val entity: CaptureEntity? = captureEntities.find{it.pokemonId == route.pokemonId}
+                val pokemon = pokedexGridScreenViewModel.pokemons.find { it.id == route.pokemonId }
+                val entity: CaptureEntity? =
+                    captureEntities.find { it.pokemonId == route.pokemonId }
 
                 PokemonDetailScreen(
-                    viewModel = pokemonDetailScreenViewModel,
                     pokemon = pokemon,
                     onBackClick = {
                         navController.popBackStack()
                     },
-                    onCaptureClick={
-                        pokemonId->
-                       if(entity == null){
+                    onCaptureClick = { pokemonId ->
+                        if (entity == null) {
                             navController.navigate(CaptureRoute(pokemonId))
-                       }else{
-                           runBlocking {
-                               captureDao.delete(entity)
-                           }
-                       }
+                        } else {
+                            runBlocking {
+                                captureDao.delete(entity)
+                            }
+                        }
 
                     },
                     captureEntity = entity
                 )
             }
 
-            composable<CaptureRoute>{
-                backStackEntry ->
+            composable<CaptureRoute> { backStackEntry ->
                 val route = backStackEntry.toRoute<PokemonDetailRoute>()
-                val pokemon = loadedPokemons.find{it.id == route.pokemonId}
+                val pokemon = pokedexGridScreenViewModel.pokemons.find { it.id == route.pokemonId }
                 CaptureScreen(
                     viewModel = CaptureScreenViewModel(),
                     onHomeClick = {
@@ -164,7 +188,7 @@ fun App(context: Any? = null) {
                     },
                     dao = captureDao,
                     permissionsController = permissionsController,
-                    pokemon=pokemon,
+                    pokemon = pokemon,
                     onCaptureFinished = {
                         navController.popBackStack()
                     }
@@ -173,8 +197,8 @@ fun App(context: Any? = null) {
             }
 
             composable<TeamRoute> {
-                for(capture in captureEntities){
-                    if (!loadedPokemons.any{it.id == capture.pokemonId}){
+                for (capture in captureEntities) {
+                    if (!loadedPokemons.any { it.id == capture.pokemonId }) {
                         runBlocking {
                             loadedPokemons.add(api.getPokemon(capture.pokemonId))
                         }
@@ -195,21 +219,9 @@ fun App(context: Any? = null) {
                         navController.navigate(PokemonDetailRoute(pokemonId))
                     },
                     team = captureEntities,
-                    pokemons=loadedPokemons
-                    )
+                    pokemons = loadedPokemons
+                )
             }
         }
     }
-}
-
-suspend fun loadMorePokemons(loadedPokemons: MutableList<Pokemon>, api:CallsAPI){
-    var id:Int = 1;
-    if(loadedPokemons.size > 0){
-        id = loadedPokemons.last().id;
-    }
-    for(i in 1..6){
-        loadedPokemons.add(api.getPokemon(id+i))
-    }
-
-
 }
